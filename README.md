@@ -1,0 +1,4 @@
+# SiameseSentenceSimilarity
+SiameseSentenceSimilarity,个人实现的基于Siamese bilstm模型的相似句子判定模型,提供训练数据集和测试数据集.
+
+
