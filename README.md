@@ -8,7 +8,9 @@ https://github.com/liuhuanyong/SentenceSimilarity
 2, 基于标注数据的句子相似度计算.这个思想大体是将句子相似度计算问题转换成一个相似句子类型判定问题,目前经典的方法是Siamese网络,这是本项目的一个初衷.  
 # 数据
 数据集主要来源于CCKS2018评测项目微众银行客户问句匹配大赛, 总数据集大小为十万条.数据集样式如下:  
-		'''
+
+
+	'''
 		怎么我开不了微利貸	怎么开不了户  录制不了 提示上传失败	0
 		亲为什么我的审批不通过的	为什么还款及时会提示综合评估未通过	1
 		你好，我借款的验证码发到我以前用的那个手机号码了，我该怎么设置呢	手机号码换了	1
@@ -32,6 +34,8 @@ https://github.com/liuhuanyong/SentenceSimilarity
 # 模型
    模型思想:采用典型的siamese网络,两个句子分成左右两个部分进行输入,使用了四层双向lstm(权重共享)进行网络编码,最后计算两个编码之间的距离,最后做预测分类:
     一 ,  编码层:使用两个双向LSTM进行编码,权重共享
+    
+    
     '''搭建编码层网络,用于权重共享'''
     def create_base_network(self, input_shape):
         input = Input(shape=input_shape)
