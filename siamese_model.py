@@ -12,7 +12,6 @@ from keras.layers import Input, Embedding, LSTM, Dropout, Lambda, Bidirectional
 import matplotlib.pyplot as plt
 import os
 from collections import Counter
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 class SiameseNetwork:
@@ -24,7 +23,7 @@ class SiameseNetwork:
         self.model_path = os.path.join(cur, 'model/tokenvec_bilstm2_siamese_model.h5')
         self.datas, self.word_dict = self.build_data()
         self.EMBEDDING_DIM = 300
-        self.EPOCHS = 10
+        self.EPOCHS = 20
         self.BATCH_SIZE = 512
         self.NUM_CLASSES = 2
         self.VOCAB_SIZE = len(self.word_dict)
@@ -227,6 +226,16 @@ class SiameseNetwork:
         80000/80000 [==============================] - 371s 5ms/step - loss: 0.4896 - acc: 0.7629 - val_loss: 0.5571 - val_acc: 0.7109
         80000/80000 [==============================] - 371s 5ms/step - loss: 0.4754 - acc: 0.7721 - val_loss: 0.4836 - val_acc: 0.7655
         80000/80000 [==============================] - 371s 5ms/step - loss: 0.4639 - acc: 0.7792 - val_loss: 0.4713 - val_acc: 0.7731
+        80000/80000 [==============================] - 544s 7ms/step - loss: 0.4519 - acc: 0.7864 - val_loss: 0.4567 - val_acc: 0.7824
+        80000/80000 [==============================] - 33654s 421ms/step - loss: 0.4448 - acc: 0.7914 - val_loss: 0.4636 - val_acc: 0.7754
+        80000/80000 [==============================] - 387s 5ms/step - loss: 0.4386 - acc: 0.7967 - val_loss: 0.4710 - val_acc: 0.7733
+        80000/80000 [==============================] - 384s 5ms/step - loss: 0.4300 - acc: 0.8004 - val_loss: 0.5132 - val_acc: 0.7538
+        80000/80000 [==============================] - 400s 5ms/step - loss: 0.4245 - acc: 0.8029 - val_loss: 0.4523 - val_acc: 0.7844
+        80000/80000 [==============================] - 407s 5ms/step - loss: 0.4195 - acc: 0.8048 - val_loss: 0.4647 - val_acc: 0.7803
+        80000/80000 [==============================] - 427s 5ms/step - loss: 0.4171 - acc: 0.8086 - val_loss: 0.4927 - val_acc: 0.7629
+        80000/80000 [==============================] - 432s 5ms/step - loss: 0.4133 - acc: 0.8092 - val_loss: 0.4517 - val_acc: 0.7859
+        80000/80000 [==============================] - 425s 5ms/step - loss: 0.4075 - acc: 0.8125 - val_loss: 0.4447 - val_acc: 0.7956
+        80000/80000 [==============================] - 415s 5ms/step - loss: 0.4022 - acc: 0.8176 - val_loss: 0.4657 - val_acc: 0.7762
         '''
 
 handler = SiameseNetwork()
