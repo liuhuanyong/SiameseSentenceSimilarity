@@ -64,11 +64,12 @@ https://github.com/liuhuanyong/SentenceSimilarity
 3,目前关于相似度计算的网络有很多,本项目是一个基础,后期将逐步学习,尝试其他网络.  
 4,将传统的相似度计算方式和深度学习网络进行融合,或许是可以做的一个点.  
 
-any question? 请联系我:  
+# contact 
+如有自然语言处理、知识图谱、事理图谱、社会计算、语言资源建设等问题或合作，请联系我:  
 邮箱:lhy_in_blcu@126.com  
 csdn:https://blog.csdn.net/lhy2014  
 我的自然语言处理项目: https://liuhuanyong.github.io/  
-
+刘焕勇，中国科学院软件研究所  
 
 
 
