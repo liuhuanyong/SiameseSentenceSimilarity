@@ -23,9 +23,9 @@ class SiameseNetwork:
         self.model_path = os.path.join(cur, 'model/tokenvec_bilstm2_siamese_model.h5')
         self.datas, self.word_dict = self.build_data()
         self.EMBEDDING_DIM = 300
-        self.EPOCHS = 20
+        self.EPOCHS = 1
         self.BATCH_SIZE = 512
-        self.NUM_CLASSES = 2
+        self.NUM_CLASSES = 20
         self.VOCAB_SIZE = len(self.word_dict)
         self.LIMIT_RATE = 0.95
         self.TIME_STAMPS = self.select_best_length()
@@ -130,7 +130,8 @@ class SiameseNetwork:
         return embedding_matrix
 
     '''基于曼哈顿空间距离计算两个字符串语义空间表示相似度计算'''
-    def exponent_neg_manhattan_distance(self, sent_left, sent_right):
+    def exponent_neg_manhattan_distance(self, inputX):
+        (sent_left, sent_right) = inputX
         return K.exp(-K.sum(K.abs(sent_left - sent_right), axis=1, keepdims=True))
 
     '''基于欧式距离的字符串相似度计算'''
@@ -167,8 +168,7 @@ class SiameseNetwork:
         left_output = shared_lstm(encoded_left)
         right_output = shared_lstm(encoded_right)
 
-        distance = Lambda(lambda x: self.exponent_neg_manhattan_distance(x[0], x[1]),
-                          output_shape=lambda x: (x[0][0], 1))([left_output, right_output])
+        distance = Lambda(self.exponent_neg_manhattan_distance)([left_output, right_output])
 
         model = Model([left_input, right_input], distance)
         model.compile(loss='binary_crossentropy',
@@ -197,7 +197,7 @@ class SiameseNetwork:
 
     '''绘制训练曲线'''
     def draw_train(self, history):
-        # Plot training & validation accuracy values
+        Plot training & validation accuracy values
         plt.plot(history.history['acc'])
         plt.plot(history.history['val_acc'])
         plt.title('Model accuracy')
@@ -205,7 +205,7 @@ class SiameseNetwork:
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
         plt.show()
-
+        
         # Plot training & validation loss values
         plt.plot(history.history['loss'])
         plt.plot(history.history['val_loss'])
@@ -214,7 +214,6 @@ class SiameseNetwork:
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
         plt.show()
-
         '''
         80000/80000 [==============================] - 379s 5ms/step - loss: 0.9952 - acc: 0.5792 - val_loss: 0.6363 - val_acc: 0.6319
         80000/80000 [==============================] - 373s 5ms/step - loss: 0.6295 - acc: 0.6491 - val_loss: 0.6823 - val_acc: 0.5935
