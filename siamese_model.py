@@ -7,9 +7,9 @@
 import numpy as np
 from keras import backend as K
 from keras.preprocessing.sequence import pad_sequences
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers import Input, Embedding, LSTM, Dropout, Lambda, Bidirectional
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 from collections import Counter
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -20,6 +20,7 @@ class SiameseNetwork:
         self.train_path = os.path.join(cur, 'data/train.txt')
         self.vocab_path = os.path.join(cur, 'model/vocab.txt')
         self.embedding_file = os.path.join(cur, 'model/token_vec_300.bin')
+        self.timestamps_file = os.path.join(cur, 'model/timestamps.txt')
         self.model_path = os.path.join(cur, 'model/tokenvec_bilstm2_siamese_model.h5')
         self.datas, self.word_dict = self.build_data()
         self.EMBEDDING_DIM = 300
@@ -30,6 +31,8 @@ class SiameseNetwork:
         self.LIMIT_RATE = 0.95
         self.TIME_STAMPS = self.select_best_length()
         self.embedding_matrix = self.build_embedding_matrix()
+
+        print(self.VOCAB_SIZE)
 
     '''根据样本长度,选择最佳的样本max-length'''
     def select_best_length(self):
@@ -57,6 +60,10 @@ class SiameseNetwork:
                 break
         print('average_length:', average_length)
         print('max_length:', max_length)
+        print('saving timestamps.....')
+        f = open(self.timestamps_file, 'w+')
+        f.write(str(max_length))
+        f.close()
         return max_length
 
     '''构造数据集'''
@@ -80,10 +87,9 @@ class SiameseNetwork:
                 vocabs.add(char)
         print(len(sample_x_left), len(sample_x_right))
         sample_x = [sample_x_left, sample_x_right]
-
         datas = [sample_x, sample_y]
         word_dict = {wd:index for index, wd in enumerate(list(vocabs))}
-        self.write_file(list(vocabs), self.vocab_path)
+        self.write_file(vocabs, self.vocab_path)
         return datas, word_dict
 
     '''将数据转换成keras所需的格式'''
@@ -102,8 +108,10 @@ class SiameseNetwork:
 
     '''保存字典文件'''
     def write_file(self, wordlist, filepath):
+        print(len(wordlist))
         with open(filepath, 'w+') as f:
-            f.write('\n'.join(wordlist))
+            for wd in wordlist:
+                f.write(wd + '\n')
 
     '''加载预训练词向量'''
     def load_pretrained_embedding(self):
@@ -167,22 +175,18 @@ class SiameseNetwork:
         shared_lstm = self.create_base_network(input_shape=(self.TIME_STAMPS, self.EMBEDDING_DIM))
         left_output = shared_lstm(encoded_left)
         right_output = shared_lstm(encoded_right)
-
         distance = Lambda(self.exponent_neg_manhattan_distance)([left_output, right_output])
-
         model = Model([left_input, right_input], distance)
         model.compile(loss='binary_crossentropy',
                       optimizer='nadam',
                       metrics=['accuracy'])
         model.summary()
-
         return model
 
 
     '''训练模型'''
     def train_model(self):
         left_x_train, right_x_train, y_train = self.modify_data()
-        print(y_train)
         model = self.bilstm_siamese_model()
         history = model.fit(
                               x=[left_x_train, right_x_train],
@@ -192,28 +196,29 @@ class SiameseNetwork:
                               epochs=self.EPOCHS,
                             )
         self.draw_train(history)
-        model.save(self.model_path)
+        model.save_weights(self.model_path)
         return model
 
     '''绘制训练曲线'''
     def draw_train(self, history):
-        Plot training & validation accuracy values
-        plt.plot(history.history['acc'])
-        plt.plot(history.history['val_acc'])
-        plt.title('Model accuracy')
-        plt.ylabel('Accuracy')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        plt.show()
-        
-        # Plot training & validation loss values
-        plt.plot(history.history['loss'])
-        plt.plot(history.history['val_loss'])
-        plt.title('Model loss')
-        plt.ylabel('Loss')
-        plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        plt.show()
+        # Plot training & validation accuracy values
+        # plt.plot(history.history['acc'])
+        # plt.plot(history.history['val_acc'])
+        # plt.title('Model accuracy')
+        # plt.ylabel('Accuracy')
+        # plt.xlabel('Epoch')
+        # plt.legend(['Train', 'Test'], loc='upper left')
+        # plt.show()
+        #
+        # # Plot training & validation loss values
+        # plt.plot(history.history['loss'])
+        # plt.plot(history.history['val_loss'])
+        # plt.title('Model loss')
+        # plt.ylabel('Loss')
+        # plt.xlabel('Epoch')
+        # plt.legend(['Train', 'Test'], loc='upper left')
+        # plt.show()
+
         '''
         80000/80000 [==============================] - 379s 5ms/step - loss: 0.9952 - acc: 0.5792 - val_loss: 0.6363 - val_acc: 0.6319
         80000/80000 [==============================] - 373s 5ms/step - loss: 0.6295 - acc: 0.6491 - val_loss: 0.6823 - val_acc: 0.5935
@@ -237,6 +242,8 @@ class SiameseNetwork:
         80000/80000 [==============================] - 415s 5ms/step - loss: 0.4022 - acc: 0.8176 - val_loss: 0.4657 - val_acc: 0.7762
         '''
 
-handler = SiameseNetwork()
-handler.train_model()
+if __name__ == '__main__':
+    handler = SiameseNetwork()
+    handler.train_model()
+
 
